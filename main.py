@@ -176,9 +176,9 @@ def load_model(model):
     return joblib.load(model)
 
 dict_model = {
-    'Linear Regression': 'model/lin_reg_model.joblib',
-    'Gradient Boost': 'model/grad_model.joblib',
-    'Random Forest': 'model/rf_model.joblib',
+    'Linear Regression': './model/lin_reg_model.joblib',
+    'Gradient Boost': './model/grad_model.joblib',
+    'Random Forest': './model/rf_model.joblib',
 }
 
 def get_user_inputs():
