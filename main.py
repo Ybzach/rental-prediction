@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 import joblib
 
 df = pd.read_csv('data_clean.csv')
-
+color = {
+    'main':'#b80606'
+}
 def plot_size_by_rooms():
     data = df.groupby('rooms_num')['size_sqft'].median()
     rc = {'figure.figsize':(2,2),
@@ -25,7 +27,7 @@ def plot_size_by_rooms():
           'ytick.labelsize': 4}
     plt.rcParams.update(rc)
     fig, ax = plt.subplots()
-    ax = sns.lineplot(x=data.index, y=data.values, data=data, color = '#b80606')
+    ax = sns.lineplot(x=data.index, y=data.values, data=data, color = color['main'])
     ax.set(title='Property Size by Number of Rooms', xlabel = 'Number of Rooms', ylabel = 'Property Size (sq.ft.)')
     st.pyplot(fig, ax)
 
@@ -46,7 +48,7 @@ def plot_price_by_size():
           'ytick.labelsize': 5}
     plt.rcParams.update(rc)
     fig, ax = plt.subplots()
-    ax = sns.regplot(x=df['size_sqft'], y=df['monthly_rent_rm'], x_jitter=.1, data=df, color = '#b80606',scatter_kws={"color": "#b80606", 's':3},line_kws={"color": "#ed8e8e", 'alpha':0.7, 'linewidth':2})
+    ax = sns.regplot(x=df['size_sqft'], y=df['monthly_rent_rm'], x_jitter=.1, data=df, color = color['main'],scatter_kws={"color": color['main'], 's':3},line_kws={"color": "#ed8e8e", 'alpha':0.7, 'linewidth':2})
     ax.set(title='Monthly rental of a property by Property Size', xlabel = 'Size (sq.ft.)', ylabel = 'Monthly Rent (RM)')
     st.pyplot(fig, ax)
 
@@ -68,10 +70,10 @@ def plot_price_by_furnished():
     plt.rcParams.update(rc)
     fig, ax = plt.subplots()
     ax = sns.boxplot(x=df['furnished'], y=df['monthly_rent_rm'], data=df, 
-                     color = '#b80606', fliersize=2,
+                     color = color['main'], fliersize=2,
                      flierprops={"markeredgecolor": "#919499" },
                      medianprops={"color": "#919499", "linewidth": 1},
-                     boxprops={"facecolor": "#b80606", "edgecolor": "#919499",
+                     boxprops={"facecolor": color['main'], "edgecolor": "#919499",
                           "linewidth": 1},
                      whiskerprops={"color": "#919499", "linewidth": 1.5},
                      capprops={"color": "#919499", "linewidth": 1.5})
@@ -96,10 +98,10 @@ def plot_price_by_nearby_railways():
     plt.rcParams.update(rc)
     fig, ax = plt.subplots()
     ax = sns.boxplot(x=df['nearby_railways'], y=df['monthly_rent_rm'], data=df, 
-                     color = '#b80606', fliersize=2,
+                     color = color['main'], fliersize=2,
                      flierprops={"markeredgecolor": "#919499" },
                      medianprops={"color": "#919499", "linewidth": 1},
-                     boxprops={"facecolor": "#b80606", "edgecolor": "#919499",
+                     boxprops={"facecolor": color['main'], "edgecolor": "#919499",
                           "linewidth": 1},
                      whiskerprops={"color": "#919499", "linewidth": 1.5},
                      capprops={"color": "#919499", "linewidth": 1.5})
@@ -125,7 +127,7 @@ def plot_price_per_sqft_by_area():
           'ytick.labelsize': 12}
     plt.rcParams.update(rc)
     fig, ax = plt.subplots()
-    ax = sns.barplot(x=data.values, y=data.index, orient='h', color = '#b80606')
+    ax = sns.barplot(x=data.values, y=data.index, orient='h', color=color['main'])
     ax.set(title='Mean Rental Price per sqft by Property Area', xlabel = 'Mean Price per sqft (RM/sqft)', ylabel = 'Property Area')
     st.pyplot(fig, ax)
     
@@ -182,7 +184,6 @@ dict_model = {
 
 def get_user_inputs():
     location_options = sorted(df['area'].unique())
-    property_type_options = sorted(df['property_type'].unique())
 
     col1, col2 = st.columns(2)
     with col1:
@@ -197,7 +198,6 @@ def get_user_inputs():
         parking = st.slider("Number of parking slots", 0, 10, 2)
         reg = st.selectbox("Regression Model", list(dict_model.keys()))
         
-
     model = load_model(dict_model[reg])
     df_input = pd.DataFrame(data=np.zeros(shape=(1, len(df_train.columns))), columns=model.feature_names_in_, dtype='float')
     df_input[convert_location(location)] = 1.0
@@ -216,11 +216,24 @@ st.header("Data Exploration")
 col1, col2 = st.columns(2,gap='medium')
 with col1: 
     plot_size_by_rooms()
+    st.markdown('The number of rooms in a property increases as its size increase')
+
+    st.divider()
     plot_price_by_size()
-    plot_price_by_furnished()
+    st.markdown('The monthly rental of a property increases as its size increase')
 with col2:
+    st.markdown('#')
     plot_price_per_sqft_by_area()
+    st.markdown('The 3 most expensive areas by land value are Brickfields, KL Eco City, and Mid Valley City')
+
+st.divider()
+col1, col2 = st.columns(2,gap='medium')
+with col1: 
+    plot_price_by_furnished()
+    st.markdown('Fully furnished properties has a higher rent price than partially or not furnished properties')
+with col2:
     plot_price_by_nearby_railways()
+    st.markdown('Properties that are in close proximity to a railway(KTM/LRT) station have a slightly higher rental price than the properties that are not.')
 
 st.divider()
 st.header("Predicting your monthly rental price")
