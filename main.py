@@ -172,7 +172,6 @@ def getStandardized(col, val):
     std_dev = dict_std_dev[col]
     return (val - mean) / std_dev
 
-@st.cache_resource
 def load_model(model):
     return joblib.load(model)
 
